@@ -1,6 +1,100 @@
+import { Alert, Button, Input } from "@heroui/react";
+import { useForm } from "react-hook-form";
+import { Link, useNavigate } from "react-router-dom";
+import { getInputProps } from "../utils/helpers";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from "react";
+import { authServices } from "../services/authService";
+import { signInSchema } from "../schemas/signInSchema";
+import type { LoginData } from "../types/loginData";
 
 export default function SignIn() {
+  const [successMsg, setSuccessMsg] = useState("");
+  const [errMsg, setErrMsg] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
+
+  const {
+    handleSubmit,
+    register,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      email: "mohamed@gmail.com",
+      password: "Mohamed@123",
+    },
+    resolver: zodResolver(signInSchema),
+  });
+
+  async function signIn(values: LoginData) {
+    setErrMsg("");
+    setSuccessMsg("");
+    setIsLoading(true);
+
+    try {
+      const data = await authServices.signIn(values);
+
+      setSuccessMsg(data.message);
+      setIsLoading(false);
+      navigate("/");
+    } catch (error: any) {
+      setErrMsg(error.response.data.message);
+      setIsLoading(false);
+    }
+  }
+
   return (
-    <div>SignIn</div>
-  )
+    <form onSubmit={handleSubmit(signIn)}>
+      <div className="grid gap-4">
+        <div className="grid gap-3 text-center">
+          <h1>Welcome Back</h1>
+          <p>Sign in to continue your journey</p>
+        </div>
+
+        <Input
+          {...register("email")}
+          {...getInputProps("email", "Email")}
+          isInvalid={!!errors.email?.message}
+          errorMessage={errors.email?.message as string}
+        />
+
+        <Input
+          {...register("password")}
+          {...getInputProps("password", "Password")}
+          isInvalid={!!errors.password?.message}
+          errorMessage={errors.password?.message as string}
+        />
+
+        <Button
+          isLoading={isLoading}
+          color="primary"
+          variant="solid"
+          type="submit"
+        >
+          Sign In
+        </Button>
+        <p>
+          U don't have an account? <Link to={"/signup"}>Login now</Link>
+        </p>
+        {errMsg && (
+          <Alert
+            hideIcon
+            color="danger"
+            title={errMsg}
+            variant="faded"
+            classNames={{ base: "py-0 capitalize text-center" }}
+          />
+        )}
+        {successMsg && (
+          <Alert
+            hideIcon
+            color="success"
+            title={successMsg}
+            variant="faded"
+            classNames={{ base: "py-0 capitalize text-center" }}
+          />
+        )}
+      </div>
+    </form>
+  );
 }
