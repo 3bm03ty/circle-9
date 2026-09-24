@@ -3,10 +3,11 @@ import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { getInputProps } from "../utils/helpers";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { authServices } from "../services/authService";
 import { signInSchema } from "../schemas/signInSchema";
 import type { LoginData } from "../types/loginData";
+import { authContext } from "../contexts/authContext";
 
 export default function SignIn() {
   const [successMsg, setSuccessMsg] = useState("");
@@ -14,13 +15,15 @@ export default function SignIn() {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
+  const { setIsLoggedIn } = useContext(authContext);
+
   const {
     handleSubmit,
     register,
     formState: { errors },
   } = useForm({
     defaultValues: {
-      email: "mohamed@gmail.com",
+      email: "mohamed20271@gmail.com",
       password: "Mohamed@123",
     },
     resolver: zodResolver(signInSchema),
@@ -33,10 +36,12 @@ export default function SignIn() {
 
     try {
       const data = await authServices.signIn(values);
+      setIsLoggedIn(true);
 
+      localStorage.setItem("token", data.data.token);
       setSuccessMsg(data.message);
       setIsLoading(false);
-      navigate("/");
+      // navigate("/");
     } catch (error: any) {
       setErrMsg(error.response.data.message);
       setIsLoading(false);
@@ -74,7 +79,7 @@ export default function SignIn() {
           Sign In
         </Button>
         <p>
-          U don't have an account? <Link to={"/signup"}>Login now</Link>
+          U don't have an account? <Link to={"/signup"}>Register now</Link>
         </p>
         {errMsg && (
           <Alert

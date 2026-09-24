@@ -24,6 +24,16 @@ class AuthServices {
     }
 
 
+    async getUserData() {
+        const { data } = await axios.get("https://route-posts.routemisr.com/users/profile-data", {
+            headers: {
+                token: localStorage.getItem("token")
+            }
+        })
+        return data;
+    }
+
+
 }
 
 export const authServices = new AuthServices()

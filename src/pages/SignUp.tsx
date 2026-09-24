@@ -40,7 +40,7 @@ export default function SignUp() {
 
       setSuccessMsg(data.message);
       setIsLoading(false);
-      navigate("/signin")
+      navigate("/signin");
     } catch (error: any) {
       setErrMsg(error.response.data.message);
       setIsLoading(false);
