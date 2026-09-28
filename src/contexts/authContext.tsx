@@ -16,7 +16,7 @@ export default function AuthContextProvider({
 
   async function getUserData() {
     try {
-      const { data } = await authServices.getUserData();
+      const { data } = await authServices.getUserData();      
       setUserData(data.user);
       setIsLoggedIn(true);
       setIsLoading(false);
@@ -33,10 +33,10 @@ export default function AuthContextProvider({
     } else {
       setIsLoading(false);
     }
-  }, []);
+  }, [isLoggedIn]);
 
   return (
-    <authContext.Provider value={{ isLoggedIn, setIsLoggedIn, isLoading }}>
+    <authContext.Provider value={{ isLoggedIn, setIsLoggedIn, isLoading, userData }}>
       {children}
     </authContext.Provider>
   );
