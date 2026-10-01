@@ -12,6 +12,7 @@ import ProtectedRoute from "./protectedRoutes/ProtectedRoute";
 import ProtectedAuthRoute from "./protectedRoutes/ProtectedAuthRoute";
 import CounterContextProvider from "./contexts/counterContext";
 import AuthContextProvider from "./contexts/authContext";
+import PostDetails from "./pages/PostDetails";
 
 const router = createBrowserRouter([
   {
@@ -53,6 +54,14 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute>
             <Profile />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "posts/:postId",
+        element: (
+          <ProtectedRoute>
+            <PostDetails />
           </ProtectedRoute>
         ),
       },

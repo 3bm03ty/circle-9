@@ -8,4 +8,7 @@ export interface CommentI {
     parentComment: null;
     likes: unknown[];
     createdAt: string;
+    likesCount: number;
+    isReply: boolean;
+    id: string;
 }

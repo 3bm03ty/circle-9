@@ -11,11 +11,9 @@ import {
 } from "@heroui/react";
 import { useContext } from "react";
 import { Link } from "react-router-dom";
-import { counterContext } from "../contexts/counterContext";
 import { authContext } from "../contexts/authContext";
 
 export default function Navbar() {
-  const { counter } = useContext(counterContext);
   const { isLoggedIn, setIsLoggedIn, userData } = useContext(authContext);
 
   function logout() {
@@ -27,7 +25,7 @@ export default function Navbar() {
     <HeroUiNavbar>
       <NavbarBrand>
         <Link to={"/"}>
-          <p className="font-bold text-inherit">CIRCLE {counter}</p>
+          <p className="font-bold text-inherit">CIRCLE</p>
         </Link>
       </NavbarBrand>
 

@@ -1,17 +1,60 @@
 import { Trash } from "lucide-react";
 import type { PostI } from "../interfaces/postI";
 import Comment from "./Comment";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { authContext } from "../contexts/authContext";
+import { Button, Input } from "@heroui/react";
+import type { CreateCommentResponse, Response } from "../types/response";
+import type { CommentI } from "../interfaces/commentI";
+import { useNavigate } from "react-router-dom";
 
 export default function Post({
   post,
   deletePost,
+  createComment,
+  deleteComment,
+  updateComment,
+  comments,
 }: {
-  post: PostI;
+  post: PostI | undefined;
   deletePost: any;
+  deleteComment: any;
+  createComment: (
+    postId: string,
+    formData: FormData,
+  ) => Promise<
+    Response<{
+      comment: CommentI;
+    }>
+  >;
+  updateComment: (
+    postId: string,
+    commentId: string,
+    formData: FormData,
+  ) => Promise<CreateCommentResponse>;
+  comments?: CommentI[];
 }) {
   const { userData } = useContext(authContext);
+  const [commentContent, setCommentContent] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
+
+  async function handleCreateComment(e: any) {
+    e.preventDefault();
+    setIsLoading(true);
+    const formData = new FormData();
+    formData.set("content", commentContent);
+    const response = await createComment(post!._id, formData);
+    // response.data.comment.commentCreator.name;
+    setIsLoading(false);
+    setCommentContent("");
+  }
+
+  
+
+  if (!post) {
+    return <h1>Loading...</h1>;
+  }
 
   return (
     <div className="bg-white w-full rounded-md shadow-md h-auto py-3 px-3 my-5">
@@ -41,7 +84,10 @@ export default function Post({
           <circle cx={5} cy={12} r={1} />
         </svg> */}
         {post.user._id == userData._id && (
-          <Trash onClick={() => deletePost(post._id)} className="text-red-500 cursor-pointer" />
+          <Trash
+            onClick={() => deletePost(post._id)}
+            className="text-red-500 cursor-pointer"
+          />
         )}
       </div>
 
@@ -109,7 +155,10 @@ export default function Post({
           </svg>
           <span className="font-semibold text-lg text-gray-600">Like</span>
         </button>
-        <button className="flex flex-row justify-center items-center space-x-3 cursor-pointer w-fit">
+        <button
+          onClick={() => navigate("/posts/" + post._id)}
+          className="flex flex-row justify-center items-center space-x-3 cursor-pointer w-fit"
+        >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width={27}
@@ -146,8 +195,43 @@ export default function Post({
           <span className="font-semibold text-lg text-gray-600">Share</span>
         </button>
       </div>
-
-      {post.topComment && <Comment comment={post.topComment} />}
+      <div>
+        <form
+          className="flex relative border-t pt-4 border-divider"
+          onSubmit={handleCreateComment}
+        >
+          <Input
+            value={commentContent}
+            onChange={(e) => setCommentContent(e.target.value)}
+            className=""
+            placeholder="comment...."
+          />
+          <Button
+            disabled={commentContent.trim().length < 2}
+            type="submit"
+            isLoading={isLoading}
+            color="primary"
+            className=""
+          >
+            Comment
+          </Button>
+        </form>
+      </div>
+      {comments
+        ? comments.map((comment) => (
+            <Comment
+              comment={comment}
+              deleteComment={deleteComment}
+              updateComment={updateComment}
+            />
+          ))
+        : post.topComment && (
+            <Comment
+              comment={post.topComment}
+              deleteComment={deleteComment}
+              updateComment={updateComment}
+            />
+          )}
     </div>
   );
 }
