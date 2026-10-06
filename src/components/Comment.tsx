@@ -58,22 +58,6 @@ export default function Comment({
               </div>
             </div>
           </div>
-          {/* <svg
-            className="w-16"
-            xmlns="http://www.w3.org/2000/svg"
-            width={27}
-            height={27}
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="#b0b0b0"
-            strokeWidth={2}
-            strokeLinecap="square"
-            strokeLinejoin="round"
-          >
-            <circle cx={12} cy={12} r={1} />
-            <circle cx={19} cy={12} r={1} />
-            <circle cx={5} cy={12} r={1} />
-          </svg> */}
 
           {comment.commentCreator._id == userData._id && (
             <>
@@ -112,7 +96,12 @@ export default function Comment({
                   >
                     Cancel
                   </Button>
-                  <Button isLoading={isLoading} type="submit" color="primary" className="">
+                  <Button
+                    isLoading={isLoading}
+                    type="submit"
+                    color="primary"
+                    className=""
+                  >
                     Edit
                   </Button>
                 </div>

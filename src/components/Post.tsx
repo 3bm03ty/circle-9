@@ -7,6 +7,7 @@ import { Button, Input } from "@heroui/react";
 import type { CreateCommentResponse, Response } from "../types/response";
 import type { CommentI } from "../interfaces/commentI";
 import { useNavigate } from "react-router-dom";
+import LoadingScreen from "./LoadingScreen";
 
 export default function Post({
   post,
@@ -45,15 +46,12 @@ export default function Post({
     const formData = new FormData();
     formData.set("content", commentContent);
     const response = await createComment(post!._id, formData);
-    // response.data.comment.commentCreator.name;
     setIsLoading(false);
     setCommentContent("");
   }
 
-  
-
   if (!post) {
-    return <h1>Loading...</h1>;
+    return <LoadingScreen />;
   }
 
   return (
@@ -67,22 +65,6 @@ export default function Post({
             <p className="text-xs text-gray-500">{post.createdAt}</p>
           </div>
         </div>
-        {/* <svg
-          className="w-16"
-          xmlns="http://www.w3.org/2000/svg"
-          width={27}
-          height={27}
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="#b0b0b0"
-          strokeWidth={2}
-          strokeLinecap="square"
-          strokeLinejoin="round"
-        >
-          <circle cx={12} cy={12} r={1} />
-          <circle cx={19} cy={12} r={1} />
-          <circle cx={5} cy={12} r={1} />
-        </svg> */}
         {post.user._id == userData._id && (
           <Trash
             onClick={() => deletePost(post._id)}
@@ -220,6 +202,7 @@ export default function Post({
       {comments
         ? comments.map((comment) => (
             <Comment
+              key={comment._id}
               comment={comment}
               deleteComment={deleteComment}
               updateComment={updateComment}

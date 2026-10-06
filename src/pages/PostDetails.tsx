@@ -1,23 +1,32 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import type { PostI } from "../interfaces/postI";
 import postsService from "../services/postsService";
 import Post from "../components/Post";
 import commentsServices from "../services/commentsService";
 import type { CommentI } from "../interfaces/commentI";
+import LoadingScreen from "../components/LoadingScreen";
 
 export default function PostDetails() {
   const { postId = "" } = useParams();
   const [post, setPost] = useState<PostI>();
   const [comments, setComments] = useState<CommentI[]>([]);
-
   const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
+  const [notFound, setNotFound] = useState(false);
 
   async function getPostDetails() {
-    const response = await postsService.getPostDetails(postId);
-    setPost(response.data.post);
-    getPostComments();
-    setIsLoading(false);
+    postsService
+      .getPostDetails(postId)
+      .then((response) => {
+        setPost(response.data.post);
+        getPostComments();
+        setIsLoading(false);
+      })
+      .catch((err) => {
+        setIsLoading(false);
+        setNotFound(true);
+      });
   }
 
   async function getPostComments() {
@@ -31,7 +40,9 @@ export default function PostDetails() {
 
   async function deletePost(postId: string) {
     const response = await postsService.deletePost(postId);
-    getPostDetails();
+    navigate("/", {
+      replace: true,
+    });
   }
 
   async function createComment(postId: string, formData: FormData) {
@@ -62,19 +73,23 @@ export default function PostDetails() {
   }
 
   if (isLoading) {
-    return <h2>Loading...</h2>;
+    return <LoadingScreen />;
   }
 
   return (
     <div className="max-w-3xl my-10 mx-auto">
-      <Post
-        post={post}
-        deletePost={deletePost}
-        createComment={createComment}
-        deleteComment={deleteComment}
-        updateComment={updateComment}
-        comments={comments}
-      />
+      {notFound ? (
+        <h2>Post Not Found</h2>
+      ) : (
+        <Post
+          post={post}
+          deletePost={deletePost}
+          createComment={createComment}
+          deleteComment={deleteComment}
+          updateComment={updateComment}
+          comments={comments}
+        />
+      )}
     </div>
   );
 }

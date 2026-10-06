@@ -1,12 +1,27 @@
 import { useState } from "react";
 import postsService from "../services/postsService";
+import { useMutation } from "@tanstack/react-query";
+import { queryClient } from "../App";
 
-export default function CreatePost({ getAllPosts }: { getAllPosts: any }) {
+export default function CreatePost() {
   const [showForm, setShowForm] = useState(false);
   const [caption, setCaption] = useState("");
   const [imgPreview, setImgPreview] = useState<string | null>("");
   const [imgFile, setImgFile] = useState<any>();
-  const [isLoading, setIsLoading] = useState(false);
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: createPost,
+    onSuccess: () => {
+      removeImg();
+      setCaption("");
+      setShowForm(false);
+      // getAllPosts();
+      queryClient.invalidateQueries({
+        queryKey: ["posts"],
+        type: 'active'
+      });
+    },
+  });
 
   function handleImageChange(e: any) {
     const imgFile = e.target.files[0];
@@ -28,7 +43,6 @@ export default function CreatePost({ getAllPosts }: { getAllPosts: any }) {
 
   async function createPost(e: any) {
     e.preventDefault();
-    setIsLoading(true);
     const formData = new FormData();
     if (caption) {
       formData.set("body", caption);
@@ -37,19 +51,13 @@ export default function CreatePost({ getAllPosts }: { getAllPosts: any }) {
       formData.set("image", imgFile);
     }
 
-    const response = await postsService.createPost(formData);
-
-    removeImg();
-    setCaption("");
-    setShowForm(false);
-    setIsLoading(false);
-    getAllPosts();
+    await postsService.createPost(formData);
   }
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6 mb-6">
       {showForm ? (
-        <form onSubmit={createPost} className="space-y-4">
+        <form onSubmit={mutate} className="space-y-4">
           {/* Caption Input */}
           <div>
             <textarea
@@ -141,7 +149,7 @@ export default function CreatePost({ getAllPosts }: { getAllPosts: any }) {
                 type="submit"
                 className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition duration-200"
               >
-                {isLoading ? (
+                {isPending ? (
                   <span className="flex items-center space-x-2">
                     <svg
                       className="animate-spin h-4 w-4"

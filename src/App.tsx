@@ -13,6 +13,8 @@ import ProtectedAuthRoute from "./protectedRoutes/ProtectedAuthRoute";
 import CounterContextProvider from "./contexts/counterContext";
 import AuthContextProvider from "./contexts/authContext";
 import PostDetails from "./pages/PostDetails";
+import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 const router = createBrowserRouter([
   {
@@ -70,17 +72,21 @@ const router = createBrowserRouter([
   },
 ]);
 
+export const queryClient = new QueryClient();
+
 function App() {
   return (
     <>
-      {/* 3- Provide whole app with the auth data (isLoggedIn, setIsLoggedIn) */}
-      <AuthContextProvider>
-        <CounterContextProvider>
-          <HeroUIProvider>
-            <RouterProvider router={router}></RouterProvider>
-          </HeroUIProvider>
-        </CounterContextProvider>
-      </AuthContextProvider>
+      <QueryClientProvider client={queryClient}>
+        <AuthContextProvider>
+          <CounterContextProvider>
+            <HeroUIProvider>
+              <RouterProvider router={router}></RouterProvider>
+            </HeroUIProvider>
+          </CounterContextProvider>
+        </AuthContextProvider>
+        <ReactQueryDevtools />
+      </QueryClientProvider>
     </>
   );
 }
